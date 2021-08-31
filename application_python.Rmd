@@ -1,0 +1,246 @@
+---
+title: "Application in python"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, include=FALSE}
+options(tinytex.verbose = TRUE)
+```
+
+```{python modules}
+# modules
+import pandas as pd
+import numpy as np
+import re
+import nltk
+import random
+import gensim
+import multiprocessing
+from gensim.models.doc2vec import Doc2Vec
+from gensim.models.doc2vec import TaggedDocument
+from bs4 import BeautifulSoup
+from sklearn.preprocessing import LabelBinarizer
+from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score, confusion_matrix
+from sklearn.linear_model import LogisticRegression
+import nltk
+nltk.download('punkt')
+import os
+import sys
+import csv
+from gensim.models import Word2Vec
+```
+
+
+
+```{python preprocessing}
+# preprocessing: reading data, remove tokens such as !, ?, / etc., transform everything into lower case,
+# transform labels into 0s and 1s for logistic regression and split data into test and training data
+
+imdb = pd.read_csv("imdb.csv", encoding = "utf-8")
+np.random.seed(5)
+imdb = imdb.sample(frac = 1).reset_index(drop = True)
+
+reviews_raw = [doc for doc in list(imdb.review)]
+sentiments = [sent for sent in list(imdb.sentiment)]
+
+reviews_clean = [BeautifulSoup(rev, "html.parser").text for rev in reviews_raw]
+reviews = [doc.lower() for doc in reviews_clean]
+reviews = [re.sub(r"[\)\(\.\,;:!?\+\-\_\#\'\*\§\$\%\&\"]", "", doc) for doc in reviews]
+
+bin = LabelBinarizer()
+labels = bin.fit_transform(sentiments)
+print(labels.shape)
+reviews_dt = pd.DataFrame(reviews, columns = ['review']) 
+
+xtrain, xtest = train_test_split(reviews, shuffle = False, train_size = .8)
+
+ytrain, ytest = train_test_split(labels, shuffle = False, train_size = .8)
+
+
+reviews_clean[5]
+```
+
+
+```{python model}
+# logistic regression model for all examples
+model = LogisticRegression(penalty = "l2", 
+                           max_iter = 5000, 
+                           C = 1, 
+                           random_state = 123, 
+                           solver = "lbfgs")
+
+```
+
+
+
+
+
+```{python BoW}
+# function for examples of bag-of-words:
+
+def get_bow(ranges = [1, 1], idf = False, xtrain = xtrain, xtest = xtest, ytrain = ytrain, ytest = ytest, model = model):
+  np.random.seed(5)
+  vec = TfidfVectorizer(ngram_range = (ranges[0], ranges[1]), 
+                        binary = False, 
+                        use_idf = idf,
+                        max_features = 10000)
+  bow = vec.fit_transform(xtrain)
+  bow_test = vec.transform(xtest)
+  bow_model = model.fit(bow, np.ravel(ytrain))
+  ytest_pred = bow_model.predict(bow_test)
+  return(accuracy_score(ytest, ytest_pred))
+
+
+# set seed for further analysis
+
+np.random.seed(5)
+
+# get different examples of BoW
+
+# unigram
+bow_uni = get_bow()
+bow_uni
+
+# bigram
+bow_bi = get_bow(ranges = [2, 2])
+bow_bi
+
+# trigram
+bow_tri = get_bow(ranges = [3, 3])
+bow_tri
+
+# uni-, bi-, trigram
+bow_all = get_bow(ranges = [1, 3])
+bow_all
+
+# unigram with tfidf
+bow_uni_idf = get_bow(idf = True)
+bow_uni_idf
+
+# bigram with tfidf
+bow_bi_idf = get_bow(ranges = [2, 2], idf = True)
+bow_bi_idf
+
+# trigram with tfidf
+bow_tri_idf = get_bow(ranges = [3, 3], idf = True)
+bow_tri_idf
+
+# uni-, bi-, trigram with tfidf
+bow_all_idf = get_bow(ranges=[1, 3], idf = True)
+bow_all_idf
+
+# uni- and bigram 
+bow_uni_bi = get_bow(ranges=[1, 2])
+bow_uni_bi
+
+# uni- and bigram idf
+bow_uni_bi_idf = get_bow(ranges=[1, 2], idf = True)
+bow_uni_bi_idf
+
+bows = {"uni": bow_uni, "bi": bow_bi, "tri": bow_tri, "uni-bi": bow_uni_bi, "all": bow_all,
+        "uni_idf": bow_uni_idf, "bi_idf": bow_bi_idf, "tri_idf": bow_tri_idf, "uni-bi_idf": bow_uni_bi_idf, "all_idf": bow_all_idf}
+bows
+
+
+
+a_file = open("bows.csv", "w")
+
+writer = csv.writer(a_file)
+
+for key, value in bows.items():
+  writer.writerow([key, value])
+  
+a_file.close()
+
+```
+
+
+```{python PV-DM}
+# Paragraph Vectors (Doc2Vec)
+
+xtrain_pv = [nltk.word_tokenize(doc) for doc in xtrain]
+xtest_pv = [nltk.word_tokenize(doc) for doc in xtest]
+
+cpus = multiprocessing.cpu_count()
+
+tagged_reviews = [TaggedDocument(words = d, tags = ["doc_" + str(i)]) for i, d in enumerate(xtrain_pv)]
+tagged_reviews_test = [TaggedDocument(words = d, tags = ["doc_" + str(i)]) for i, d in enumerate(xtest_pv)]
+
+
+# Distributed Memory
+# setup of parameters, all defaults here
+d2v_model = Doc2Vec(dm = 1, dm_concat = 0, dm_mean = 1, vector_size = 400, window = 10, workers = cpus - 1)
+                    
+# initialize model with training reviews
+d2v_model.build_vocab(tagged_reviews, update = False, progress_per=10000)
+
+# training of model
+d2v_model.train(tagged_reviews, total_examples = d2v_model.corpus_count, epochs = 50)
+
+# save the model
+d2v_model.save("./imdb.d2v")
+
+d2v_model = Doc2Vec.load('./imdb.d2v')
+
+ids_similar = d2v_model.dv.most_similar(["doc_5"], topn = 3)
+ids_similar
+d2v_model.wv.most_similar(positive = ["character"])
+d2v_model.wv.most_similar(positive = ["movie"])
+
+d2v_array = [(d2v_model.dv[doc.tags[0]]) for doc in tagged_reviews]
+
+model_d2v_log = model.fit(d2v_array, np.ravel(ytrain))
+
+d2v_test = [(d2v_model.infer_vector(doc[0])) for doc in tagged_reviews_test]
+
+ytest_pred_d2v = model.predict(d2v_test)
+
+accuracy_score(ytest, ytest_pred_d2v)
+
+```
+
+
+```{python PV-DBoW}
+# Distributed BoW
+
+dbow_model = Doc2Vec(dm = 0, dm_concat = 0, dm_mean = 1, vector_size = 400, window = 10, workers = cpus - 1)
+
+dbow_model.build_vocab(tagged_reviews, update = False, progress_per = 10000)
+dbow_model.train(tagged_reviews, total_examples = dbow_model.corpus_count, epochs = 50)
+
+dbow_model.save("./imdb.dbow")
+dbow_model = Doc2Vec.load("./imdb.dbow")
+
+ids_similar_dbow = dbow_model.dv.most_similar(["doc_5"], topn = 3)
+ids_similar_dbow
+
+dbow_array = [(dbow_model.dv[doc.tags[0]]) for doc in tagged_reviews]
+model_dbow_log = model.fit(dbow_array, np.ravel(ytrain))
+
+dbow_test = [(dbow_model.infer_vector(doc[0])) for doc in tagged_reviews_test]
+
+ytest_pred_dbow = model.predict(dbow_test)
+accuracy_score(ytest_pred_dbow, ytest)
+
+dbow_model.wv.most_similar(positive = ["worst"])
+
+```
+
+```{python PV-both}
+# Distributed BoW and Distributed Memory together
+pv_array = [(np.append(d2v_array[i], dbow_array[i])) for i in range(40000)]
+len(pv_array)
+
+model_pv_log = model.fit(pv_array, np.ravel(ytrain))
+
+pv_test = [(np.append(d2v_test[i], dbow_test[i])) for i in range(10000)]
+
+ytest_pred_pv = model.predict(pv_test)
+accuracy_score(ytest_pred_pv, ytest)
+```
