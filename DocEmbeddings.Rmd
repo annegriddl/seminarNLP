@@ -68,7 +68,7 @@ options(tinytex.verbose = TRUE)
 ```{r Abbreviations, echo=FALSE}
 data.table(
   Term = c("Natural Language Processing", "Bag-of-words", "Term Frequency - Inverse Document Freuquency", "Continuous bag-of-words", "Paragraph Vector", "Paragraph Vector - Distributed Memory", "Paragraph Vectors - Distributed Bag-of-words", "Internet Movie Database", "Sentence-BERT"),
-  Abbreviation = c("NLP", "BoW", "TF-IDF", "CBoW", "Doc2Vec","PV-DM", "PV-DBOW", "IMDB", "SBERT")) %>%
+  Abbreviation = c("NLP", "BOW", "TF-IDF", "CBOW", "Doc2Vec","PV-DM", "PV-DBOW", "IMDB", "SBERT")) %>%
   arrange(Term) %>%
   kable(booktabs = TRUE, format =  "latex", escape = FALSE, linesep  = "") %>%
   kable_styling(latex_options = c("striped", "repeat_header"), full_width = TRUE)
@@ -94,7 +94,7 @@ There are several approaches to embed words, sentences, paragraphs and documents
 
 # Bag-of-words approach
 
-To analyse texts with machine learning models, one needs to transform these written texts into numeric vectors. One intuitive way of achieving this, is the bag-of-words (BoW) approach. It is one way of representing sentences or documents by converting them into numeric vectors. The basic idea is that a vocabulary is learned which consists of the words in each text. A text can be a sentence, one or more paragraphs or documents. Therefore, one can think about this approach as a bag that contains the words which are used and so any information about grammar or the structure or order of words in the text is discarded. The model does not know where words are in the document, it only concerns itself with whether known words appear in the document.
+To analyse texts with machine learning models, one needs to transform these written texts into numeric vectors. One intuitive way of achieving this, is the bag-of-words (BOW) approach. It is one way of representing sentences or documents by converting them into numeric vectors. The basic idea is that a vocabulary is learned which consists of the words in each text. A text can be a sentence, one or more paragraphs or documents. Therefore, one can think about this approach as a bag that contains the words which are used and so any information about grammar or the structure or order of words in the text is discarded. The model does not know where words are in the document, it only concerns itself with whether known words appear in the document.
 
 Let $T$ contain $n$ texts, so $T = \{t_1, ..., t_n\}$. Each text $t_i \text{ mit } i = 1,..., n$ consists of certain words that form the vocabulary $v_i \text{ with } i = 1, ..., n$ of a text. The vocabularies of texts may differ in length which means that they can contain a different amount of words. The whole vocabulary therefore consists of unique words from all processed documents. A text can be represented by a vector, which has the same length as the vocabulary, that counts the number of times each word occurs in the respective document.
 
@@ -141,7 +141,7 @@ kbl(bow, booktabs = TRUE, format =  "latex", escape = FALSE, label = "bow", capt
   kable_styling(latex_options = c("striped"), full_width = FALSE)
 ```
 
-That is the general idea of bag-of-words models. An even more simple way of the BoW approach is to mark the presence of each word as a boolean value, using 0 for absent and 1 for present words. If one uses this method, the vector of the first text would change to [1, 1, 1, 1, 0, 0, 0, 0, 0, 0]. While the value of the word *lame* was set to *3* in the example demonstrated above, it is now *1* as the presence of a word is of interest and not the number of times it occurs in a text (@bow_website).
+That is the general idea of bag-of-words models. An even more simple way of the BOW approach is to mark the presence of each word as a boolean value, using 0 for absent and 1 for present words. If one uses this method, the vector of the first text would change to [1, 1, 1, 1, 0, 0, 0, 0, 0, 0]. While the value of the word *lame* was set to *3* in the example demonstrated above, it is now *1* as the presence of a word is of interest and not the number of times it occurs in a text (@bow_website).
 
 
 ## N-grams
@@ -150,7 +150,7 @@ By using n-grams, one creates a vocabulary that contains grouped words. Accordin
 
 ## Term Frequency - Inverse Document Frequency
 
-Term Frequency - Inverse Document Frequency (TF-IDF) is another approach in order to score the frequency of words that exist in a document. The BoW method counts the number of times each word appears in a document. Therefore, highly frequent words have a larger score although they may not be as interesting or important to the model as rarer but perhaps domain specific words (@bow_website). TF-IDF penalizes words that are frequent across all documents by rescaling the frequency of words.
+Term Frequency - Inverse Document Frequency (TF-IDF) is another approach in order to score the frequency of words that exist in a document. The BOW method counts the number of times each word appears in a document. Therefore, highly frequent words have a larger score although they may not be as interesting or important to the model as rarer but perhaps domain specific words (@bow_website). TF-IDF penalizes words that are frequent across all documents by rescaling the frequency of words.
 
 Term Frequency (TF) is a measure of how many times a word $w$ appears in a text $t$:
 
@@ -172,16 +172,16 @@ $$
 
 ## Limitations of bag-of-words
 
-The bag-of-words approach is easy to implement. However, it also entails some drawbacks and limitations. First, if the BoW method is used to generate vectors from large documents, the dimension of the resulting vector will be very large and will contain many null values. This results in sparse vector representations.
+The bag-of-words approach is easy to implement. However, it also entails some drawbacks and limitations. First, if the BOW method is used to generate vectors from large documents, the dimension of the resulting vector will be very large and will contain many null values. This results in sparse vector representations.
 
 Second, as it is a *bag* of words, the order of the words in a text is being ignored. Therefore, it is difficult with this approach to make sense of text data. The sentences *Sarah likes informatics but dislikes speaking english* and *Sarah likes speaking english but dislikes informatics* are very different in meaning but they will result in similar vectorized representations (@bow_website2).
 
-Third, BoW ignores the semantics of words. This implies that the words *apple*, *banana* and *tired* are equally distant to each other in vector space, although *apple* and *banana* have a similar meaning because both are fruits. Other approaches to represent documents that can overcome these limitations will be explained in the following chapters. 
+Third, BOW ignores the semantics of words. This implies that the words *apple*, *banana* and *tired* are equally distant to each other in vector space, although *apple* and *banana* have a similar meaning because both are fruits. Other approaches to represent documents that can overcome these limitations will be explained in the following chapters. 
 
 
 # Neural network-based approaches
 
-While the BoW approach is intuitive to understand and easy to implement, it does have some limitations as explained in \ref{limitations-of-bag-of-words}. Methods that are based on neural networks, and are therefore more complex, overcome these weaknesses. One important component in neural networks for language is the usage of an embedding layer in which words, sentences or texts are mapped to continuous vectors in a relatively low-dimensional space. Machine learning algorithms can then operate with these embeddings because they are numerical representations of symbols. This representation of phrases is learned by the neural network while training (@Goldberg17). 
+While the BOW approach is intuitive to understand and easy to implement, it does have some limitations as explained in \ref{limitations-of-bag-of-words}. Methods that are based on neural networks, and are therefore more complex, overcome these weaknesses. One important component in neural networks for language is the usage of an embedding layer in which words, sentences or texts are mapped to continuous vectors in a relatively low-dimensional space. Machine learning algorithms can then operate with these embeddings because they are numerical representations of symbols. This representation of phrases is learned by the neural network while training (@Goldberg17). 
 
 @rumelhardt86 first proposed distributed representations for words which was the beginning of various other methods. One successful technique to embed words was then introduced by @mikolov13a known as Word2Vec. One advantage of distributed representations for words is that words with similar meaning are close to each other in the vector space. For example, the representations of *apple* and *banana* are close to each other, whereas *apple* and *tired* are more distant. After that milestone in NLP was set, other forms of embedding methods were researched, such as sentence and document embeddings. If sentences or documents can be mapped to vector representations, one can choose to apply them on many tasks such as sentiment analysis, text classification, sentence or document similarity, paraphrase detection and many more. In the following chapters, Word2Vec as well as two sentence and document embedding methods, Doc2Vec and Skip-Thoughts Vectors, will be explained.
 
@@ -203,15 +203,15 @@ Distributed representations of words have several advantages that are able to ov
 
 ## Paragraph Vector
 
-@mikolov14 introduced the Paragraph Vector, which is also known as Doc2Vec, to predict words in a given paragraph. It is an unsupervised algorithm which learns continuous distributed vector representations of texts (@mikolov14). These texts may differ in length and can therefore be sentences, paragraphs or large documents as well. Paragraph Vector can overcome the weaknesses of BoW models, such as losing the word order and ignoring semantics of the words, which are mentioned in \ref{limitations-of-bag-of-words}. 
+@mikolov14 introduced the Paragraph Vector (PV), which is also known as Doc2Vec, to predict words in a given paragraph. It is an unsupervised algorithm which learns continuous distributed vector representations of texts. These texts may differ in length and can therefore be sentences, paragraphs or large documents as well. Paragraph Vector can overcome the weaknesses of BoW models, such as losing the word order and ignoring semantics of the words, which are mentioned in \ref{limitations-of-bag-of-words} (@mikolov14). 
 
-Doc2Vec is inspired by the method for learning word vectors, but adds a unique vector for each paragraph. There are two different approaches of Paragraph Vector: **Distributed Memory** and **Distributed Bag-of-words**.
+Doc2Vec is inspired by the method for learning word vectors, but adds a unique vector for each paragraph. A major advantage of Paragraph Vector compared to Word2Vec is that not only words, but pieces of texts that may vary in length can be embedded. Furthermore, PV maintains the advantages of distributed representations of words as it also captures the semantics and context of words. There are two different approaches of Paragraph Vector: **Distributed Memory** and **Distributed Bag-of-words**.
 
 ### Distributed Memory 
 
-In the Distributed Memory model of Paragraph Vectors *(PV-DM)*, paragraph vectors and word vectors contribute to predict the next word given several contexts which are sampled from the document.
+In the Distributed Memory model of Paragraph Vectors (PV-DM), paragraph vectors and word vectors contribute to predict the next word given several contexts which are sampled from the document.
 
-```{r pv-dm, echo = FALSE, fig.cap="\\label{fig:pv-dm}The framework of PV-DM. The concantenation or average of the paragraph vector with the word vectors, which are the context words, is used to predict the forth word.", fig.align="center", out.width="80%"}
+```{r pv-dm, echo = FALSE, fig.cap="\\label{fig:pv-dm}The framework of PV-DM. The concantenation or average of the paragraph vector with the word vectors, which are the context words, is used to predict the forth word.", fig.align="center", out.width="90%"}
 include_graphics("images/pv-dm.png")
 ```
 
@@ -225,7 +225,7 @@ There are several advantages of paragraph vector. First, they are learned from u
 
 The Distributed bag-of-words model of Paragraph Vectors (PV-DBOW) loses the order of words as the context words are being ignored. Here, only the paragraph vectors are used to predict words in a small window. 
 
-```{r pv-dbow, echo = FALSE, fig.cap="\\label{fig:pv-dbow}The framework of PV-DBOW. The paragraph vector is trained to predict the words in a context window.", fig.align="center", out.width="80%"}
+```{r pv-dbow, echo = FALSE, fig.cap="\\label{fig:pv-dbow}The framework of PV-DBOW. The paragraph vector is trained to predict the words in a context window.", fig.align="center", out.width="90%"}
 include_graphics("images/pv-dbow.png")
 ```
 
@@ -239,7 +239,7 @@ In @mikolov14, the authors suggest to combine PV-DM and PV-DBOW because its comb
 
 Skip-Thought vectors are a neural network for learning fixed length representations of sentences with unlabelled data. It is an unsupervised sentence-decoder framework. Skip-thoughts extend the Skip-gram architecture of Word2Vec to the sentence level as not words, but a sentence is used to predict its surrounding context. 
 
-```{r skipthoughts, echo = FALSE, fig.cap="\\label{fig:skipthoughts}The framework of Skip-Thoughts. The middle sentence is being encoded and the decoders try to reconstruct the previous and next sentence.", fig.align="center", out.width="80%"}
+```{r skipthoughts, echo = FALSE, fig.cap="\\label{fig:skipthoughts}The framework of Skip-Thoughts. The middle sentence is being encoded and the decoders try to reconstruct the previous and next sentence.", fig.align="center", out.width="100%"}
 include_graphics("images/skipthoughts2.png")
 ``` 
 
@@ -249,7 +249,9 @@ To train the models, the authors of @skipThought used a large collection of nove
 
 The model uses a recurrent neural network (RNN) encoder (@rnn) with gated recurrent units (GRU) activations (@gru) and RNN decoders with conditional GRU. The encoder takes the words in a sentence sequentially and the decoders generate the sentences word by word as well. After the decoder has generated a word, it is fed the true word of the target sentence from the corpus. This is done for all words in the training corpus. The decoder predicts a new word by using a probability distribution over words which may occur at that position given the encoded sentence $h_i$ and the previous words in this sentence (@skipThoughts2).
 
-**Vocabulary expansion.** 
+ 
+
+**Vocabulary expansion:** 
 To encode arbitrary sentences, one needs to construct a large enough word vocabulary. As the model is trained with novels, a science article, for example, can then contain unknown words. Therefore, the vocabulary expansion solves the problem of out-of-vocabulary words by transferring vector representations of words from one model to another. The authors of @skipThought use pre-trained embeddings learned with a continuous bag-of-words model to 'learn a linear mapping from a word in Word2Vec space to a word in the encoder’s vocabulary space'. This is done by by solving an un-regularized L2 linear regression loss for the matrix W parameterizing this mapping (@skipThought).
 
 
@@ -294,9 +296,9 @@ The word vectors and paragraph vector in PV-DM are averaged to predict the word 
 
 This chapter will compare the performances of bag-of-words models and Paragraph Vector. Table \ref{tab:results} shows the accuracy scores of all models I have applied in Python. The uni- and bigram model with TF-IDF outperform every other model, also the ones that are based on neural networks. Furthermore, every bag-of-words model with TF-IDF has better scores than Paragraph Vector.
 
-Based on these results, one could therefore argue that the BoW models with TF-IDF should be preferred. However, there are a few things that should be taken into consideration when looking at the results. In @mikolov14, a sentiment analysis with Paragraph Vector was also performed on the IMDB dataset. The paper states that Paragraph Vector shows better results than the bag-of-words models of @imdb, although the BoW models also performed quite well. Instead of 50,000 reviews, they used 100,000 that are divided into three datsets. 25,000 labelled training reviews, 25,000 labelled test instances that I used for my analysis as well. Plus, they had 50,000 unlabelled movie reviews and they trained their model with these unlabelled and the labelled training instances. Hence, the authors had more documents than I had which is an advantage when training the word and paragraph vectors. Another point that needs to be mentioned is that I averaged the word and paragraph vectors in PV-DM to predict the missing word in the context, while @mikolov14 concatenated them. This captures every single word and also the word order which is an advantage for training. They further state that PV-DM alone usually works well for most tasks, but that its combination with PV-DBOW is usually more consistent across many tasks they try and they would therefore recommend it. As PV-DBOW and PV-DBOW with PV-DM outperform PV-DM one might think that concatenating the word and paragraph vectors could lead to improved results. However, this involves high computational cost and that is the reason I have not tried it.
+Based on these results, one could therefore argue that the BOW models with TF-IDF should be preferred. However, there are a few things that should be taken into consideration when looking at the results. In @mikolov14, a sentiment analysis with Paragraph Vector was also performed on the IMDB dataset. The paper states that Paragraph Vector shows better results than the bag-of-words models of @imdb, although the BOW models also performed quite well. Instead of 50,000 reviews, they used 100,000 that are divided into three datsets. 25,000 labelled training reviews, 25,000 labelled test instances that I used for my analysis as well. Plus, they had 50,000 unlabelled movie reviews and they trained their model with these unlabelled and the labelled training instances. Hence, the authors had more documents than I had which is an advantage when training the word and paragraph vectors. Another point that needs to be mentioned is that I averaged the word and paragraph vectors in PV-DM to predict the missing word in the context, while @mikolov14 concatenated them. This captures every single word and also the word order which is an advantage for training. They further state that PV-DM alone usually works well for most tasks, but that its combination with PV-DBOW is usually more consistent across many tasks they try and they would therefore recommend it. As PV-DBOW and PV-DBOW with PV-DM outperform PV-DM one might think that concatenating the word and paragraph vectors could lead to improved results. However, this involves high computational cost and that is the reason I have not tried it.
 
-Nevertheless, the analysis underlined the advantages of Paragraph Vector. While each review has a vector representation of length 10,000 using BoW models, the dimension of PV-DM and PV-DBOW is 400 respectively. Furthermore, PV preserves the semantics of words. The nearest neighbours, for example, for the word *character* are *characters*, *protagonist* and *villain*. This is measured with cosine similarity and shows that the vector representations of words in PV-DM are reasonable embeddings.
+Nevertheless, the analysis underlined the advantages of Paragraph Vector. While each review has a vector representation of length 10,000 using BOW models, the dimension of PV-DM and PV-DBOW is 400 respectively. Furthermore, PV preserves the semantics of words. The nearest neighbours, for example, for the word *character* are *characters*, *protagonist* and *villain*. This is measured with cosine similarity and shows that the vector representations of words in PV-DM are reasonable embeddings.
 
  
 
@@ -313,6 +315,8 @@ kbl(bow, booktabs = TRUE, format =  "latex", escape = FALSE, label = "results", 
   kable_styling(latex_options = c("striped"), full_width = FALSE)
 
 ```
+
+\newpage
 
 # Outlook
 
