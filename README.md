@@ -3,12 +3,12 @@
 ### Sentence & Document Embeddings
 
 Lecture: Foundations of Natural Language Processing (Seminar)  
-Institut: Statistik, LMU MÃ¼nchen  
-Advisors: Prof. Dr. Christian Heumann, Daniel Schalk, Matthias Aßenmacher  
+Institut: Statistik, LMU Muenchen  
+Advisors: Prof. Dr. Christian Heumann, Daniel Schalk, Matthias AÃŸenmacher  
 
 Topic: Sentence & Document Embeddings  
 Author: Anne Gritto  
-Supervisor: Matthias Aßenmacher  
+Supervisor: Matthias AÃŸenmacher  
 
 The seminar gives an overview of the basic concepts of neural networks and embedding methods in NLP.  
 

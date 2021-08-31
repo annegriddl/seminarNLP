@@ -174,7 +174,7 @@ $$
 
 The bag-of-words approach is easy to implement. However, it also entails some drawbacks and limitations. First, if the BoW method is used to generate vectors from large documents, the dimension of the resulting vector will be very large and will contain many null values. This results in sparse vector representations.
 
-Second, as it is a *bag* of words, the order of the words in a text is being ignored. Therefore, it is difficult with this approach to make sense of text data. The sentences "Sarah likes informatics but dislikes speaking english" and "Sarah likes speaking english but dislikes informatics" are very different in meaning but they will result in similar vectorized representations (@bow_website2).
+Second, as it is a *bag* of words, the order of the words in a text is being ignored. Therefore, it is difficult with this approach to make sense of text data. The sentences *Sarah likes informatics but dislikes speaking english* and *Sarah likes speaking english but dislikes informatics* are very different in meaning but they will result in similar vectorized representations (@bow_website2).
 
 Third, BoW ignores the semantics of words. This implies that the words *apple*, *banana* and *tired* are equally distant to each other in vector space, although *apple* and *banana* have a similar meaning because both are fruits. Other approaches to represent documents that can overcome these limitations will be explained in the following chapters. 
 
@@ -235,7 +235,7 @@ This model is conceptually simple. Furthermore, it does not need to store as muc
 
 In @mikolov14, the authors suggest to combine PV-DM and PV-DBOW because its combination is more consistent across many tasks they tried. 
 
-## Skip-Thought vectors
+## Skip-Thought Vectors
 
 Skip-Thought vectors are a neural network for learning fixed length representations of sentences with unlabelled data. It is an unsupervised sentence-decoder framework. Skip-thoughts extend the Skip-gram architecture of Word2Vec to the sentence level as not words, but a sentence is used to predict its surrounding context. 
 
@@ -247,7 +247,7 @@ Figure \ref{fig:skipthoughts} illustrates the model of Skip-Thoughts which is ad
 
 To train the models, the authors of @skipThought used a large collection of novels, which is known as the BookCorpus dataset (@bookCorpus), because their model needs to have a training corpus of adjoining text. This dataset contains books of 16 different genres.
 
-The model uses a recurrent neural network (RNN) encoder with gated recurrent units (GRU) activations \textcolor{red}{quellen!} and RNN decoders with conditional GRU. The encoder takes the words in a sentence sequentially and the decoders generate the sentences word by word as well. After the decoder has generated a word, it is fed the true word of the target sentence from the corpus. This is done for all words in the training corpus. The decoder predicts a new word by using a probability distribution over words which may occur at that position given the encoded sentence $h_i$ and the previous words in this sentence (@skipThoughts2).
+The model uses a recurrent neural network (RNN) encoder (@rnn) with gated recurrent units (GRU) activations (@gru) and RNN decoders with conditional GRU. The encoder takes the words in a sentence sequentially and the decoders generate the sentences word by word as well. After the decoder has generated a word, it is fed the true word of the target sentence from the corpus. This is done for all words in the training corpus. The decoder predicts a new word by using a probability distribution over words which may occur at that position given the encoded sentence $h_i$ and the previous words in this sentence (@skipThoughts2).
 
 **Vocabulary expansion.** 
 To encode arbitrary sentences, one needs to construct a large enough word vocabulary. As the model is trained with novels, a science article, for example, can then contain unknown words. Therefore, the vocabulary expansion solves the problem of out-of-vocabulary words by transferring vector representations of words from one model to another. The authors of @skipThought use pre-trained embeddings learned with a continuous bag-of-words model to 'learn a linear mapping from a word in Word2Vec space to a word in the encoder’s vocabulary space'. This is done by by solving an un-regularized L2 linear regression loss for the matrix W parameterizing this mapping (@skipThought).
@@ -256,7 +256,7 @@ To encode arbitrary sentences, one needs to construct a large enough word vocabu
 
 # Application in Python
 
-In the following parts of this chapter, the bag-of-words approach and Paragraph Vector will be applied in Python to better understand the use and behaviour of these methods. This will be done with sentiment analysis which requires fixed-length vector representations of documents. The IMDB dataset by @imdb will be used for these tasks. All codes can be found at \textcolor{red}{link eingeben}.
+In the following parts of this chapter, the bag-of-words approach and Paragraph Vector will be applied in Python to better understand the use and behaviour of these methods. This will be done with sentiment analysis which requires fixed-length vector representations of documents. The IMDB dataset by @imdb will be used for these tasks. All codes can be found at https://github.com/annegriddl/seminarNLP.
 
 ## Data
 
@@ -327,7 +327,7 @@ I would like to thank Matthias Aßenmacher who supervised my project. My code is
 
  
 
-The link for my analysis with bag-of-words and Paragraph Vector in this seminar is 
+The link for my analysis with bag-of-words and Paragraph Vector in this seminar is https://github.com/annegriddl/seminarNLP.
 
 
 \newpage
